@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -20,14 +21,40 @@ var tasks = []Task{}
 const Dport = ":8012"
 
 func main() {
-	//http.HandleFunc("/task", taskHandler)
+	http.HandleFunc("/task", taskHandler)
 	http.HandleFunc("/tasks", tasksHandler)
 	fmt.Printf("Server is starting on port: %v", Dport)
 	http.ListenAndServe(Dport, nil)
 }
 
-// func taskHandler() {
-// }
+func taskHandler(w http.ResponseWriter, r *http.Request) {
+	// Extract the task ID from the URL path
+	taskID := strings.TrimPrefix(r.URL.Path, "/task")
+	switch r.Method {
+	case "PUT":
+		var updatedTask Task
+		if err := json.NewDecoder(r.Body).Decode(&updatedTask); err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+		found := false
+		for i, task := range tasks {
+			if task.ID == taskID {
+				updatedTask.ID = taskID // Ensuring the ID remains unchanged
+				tasks[i] = updatedTask
+				found = true
+				break
+			}
+		}
+		if !found {
+			http.Error(w, "Task not found", http.StatusNotFound)
+		}
+		json.NewEncoder(w).Encode(updatedTask)
+	case "DELETE":
+	default:
+	}
+
+}
 func tasksHandler(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
