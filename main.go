@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
 )
@@ -25,5 +26,11 @@ func main() {
 
 // func taskHandler() {
 // }
-func tasksHandler() {
+func tasksHandler(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "GET":
+		json.NewEncoder(w).Encode(tasks)
+	case "POST":
+	default:
+	}
 }
