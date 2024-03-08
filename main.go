@@ -22,8 +22,20 @@ const Dport = ":8012"
 func main() {
 	http.HandleFunc("/tasks", tasksHandler)
 	http.HandleFunc("/task/", taskHandler)
+	http.HandleFunc("/", rootInfoHandler)
 	fmt.Printf("Server is starting on port: %v\n", Dport) // Added newline for better terminal output
 	http.ListenAndServe(Dport, nil)
+}
+
+func rootInfoHandler(w http.ResponseWriter, r *http.Request) {
+	details := `Welcome to the Guide of Task API
+Use /tasks to GET or POST tasks.
+Use /task/{id} to DELETE, or PUT
+Student ID: 500232312
+GitHub Repository: https://github.com/shubhambathla`
+
+	w.Header().Set("Content-Type", "text/plain")
+	fmt.Fprint(w, details)
 }
 
 // Handle requests to the /tasks endpoint
